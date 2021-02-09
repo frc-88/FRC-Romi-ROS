@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node name="tj2_romi_odom" pkg="tj2_romi_odom" type="tj2_romi_odom_node" output="screen" required="true">
+    </node>
+</launch>
