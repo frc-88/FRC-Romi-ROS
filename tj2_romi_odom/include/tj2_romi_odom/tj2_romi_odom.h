@@ -64,6 +64,11 @@ private:
     double wheel_distance_m;
     double speed_smooth_k_left, speed_smooth_k_right;
 
+    double min_angular_speed, max_angular_speed;
+    double min_linear_speed, max_linear_speed;
+    double zero_speed_epsilon;
+    double max_cmd, min_cmd;
+
     // State variables
     ros::Time odom_timestamp;
     ros::Time prev_odom_time;
@@ -74,6 +79,8 @@ private:
     // Publishers
     tf2_ros::TransformBroadcaster tf_broadcaster;
     ros::Publisher odom_pub;
+    ros::Publisher motor_left_pub;
+    ros::Publisher motor_right_pub;
 
     // Subscribers
     ros::Subscriber twist_sub;
@@ -88,11 +95,17 @@ private:
     // messages
     OdomState* odom_state;
     nav_msgs::Odometry odom_msg;
+    std_msgs::Float64 motor_left_msg;
+    std_msgs::Float64 motor_right_msg;
 
     // Compute odometry
     void odom_estimator_update(double left_speed, double right_speed, double dt);
     void compute_odometry();
     void publish_chassis_data();
+
+    // Twist commands
+    double bound_speed(double value, double lower, double upper, double epsilon);
+    double m_to_cmd(double value_m);
 
     void loop();
     

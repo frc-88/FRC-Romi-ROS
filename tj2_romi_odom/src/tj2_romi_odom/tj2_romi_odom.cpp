@@ -7,8 +7,19 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     ros::param::param<bool>("~publish_odom_tf", publish_odom_tf, true);
     ros::param::param<bool>("~use_sensor_msg_time", use_sensor_msg_time, true);
 
+    // Twist parameters
+    ros::param::param<double>("~min_angular_speed", min_angular_speed, 0.0);
+    ros::param::param<double>("~max_angular_speed", max_angular_speed, 0.0);
+    ros::param::param<double>("~min_linear_speed", min_linear_speed, 0.0);
+    ros::param::param<double>("~max_linear_speed", max_linear_speed, 0.0);
+    ros::param::param<double>("~zero_speed_epsilon", zero_speed_epsilon, 0.01);
+    ros::param::param<double>("~max_cmd", max_cmd, 1.0);
+    ros::param::param<double>("~min_cmd", min_cmd, -1.0);
+
     // Publishers
     odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 50);
+    motor_left_pub = nh.advertise<std_msgs::Float64>("motor_left", 50);
+    motor_right_pub = nh.advertise<std_msgs::Float64>("motor_right", 50);
 
     // Subscribers
     twist_sub = nh.subscribe<geometry_msgs::Twist>("cmd_vel", 50, &TJ2RomiOdom::twist_callback, this);
@@ -103,9 +114,69 @@ void TJ2RomiOdom::encoder_right_callback(std_msgs::Float64 msg)
     right_dist = msg.data;
 }
 
+
+double TJ2RomiOdom::bound_speed(double value, double lower, double upper, double epsilon)
+{
+    double abs_value = abs(value);
+    if (abs_value < lower) {
+        if (abs_value > epsilon) {
+            value = copysign(lower, value);
+        }
+        else {
+            value = 0.0;
+        }
+    }
+    if (upper != 0.0 && abs_value > upper) {
+        value = copysign(upper, value);
+    }
+    return value;
+}
+
+double TJ2RomiOdom::m_to_cmd(double value_m)
+{
+    return value_m / max_linear_speed;
+}
+
+
 void TJ2RomiOdom::twist_callback(geometry_msgs::Twist msg)
 {
+    double linear_speed_mps = msg.linear.x;  // m/s
+    double angular_speed_radps = msg.angular.z;  // rad/s
 
+    linear_speed_mps = bound_speed(linear_speed_mps, min_linear_speed, max_linear_speed, zero_speed_epsilon);
+    angular_speed_radps = bound_speed(
+        angular_speed_radps,
+        (linear_speed_mps == 0.0) ? min_angular_speed : 0.0,
+        max_angular_speed,
+        (linear_speed_mps == 0.0) ? zero_speed_epsilon : 0.0);
+
+    // arc = angle * radius
+    // rotation speed at the wheels
+    double rotational_speed_mps = angular_speed_radps * wheel_distance_m / 2.0;
+
+    int64_t left_command = m_to_cmd(linear_speed_mps - rotational_speed_mps);
+    int64_t right_command = m_to_cmd(linear_speed_mps + rotational_speed_mps);
+
+    int64_t larger_cmd = max(left_command, right_command);
+    if (abs(larger_cmd) > max_cmd)
+    {
+        int64_t abs_left = abs(left_command);
+        int64_t abs_right = abs(right_command);
+        if (abs_left > abs_right) {
+            left_command = (int64_t)copysign(max_cmd, left_command);
+            right_command = (int64_t)copysign(max_cmd * (double)abs_right / (double)abs_left, right_command);
+        }
+        else {
+            left_command = (int64_t)copysign(max_cmd * (double)abs_left / (double)abs_right, left_command);
+            right_command = (int64_t)copysign(max_cmd, right_command);
+        }
+    }
+
+    motor_left_msg.data = left_command;
+    motor_right_msg.data = right_command;
+
+    motor_left_pub.publish(motor_left_msg);
+    motor_right_pub.publish(motor_right_msg);
 }
 
 //

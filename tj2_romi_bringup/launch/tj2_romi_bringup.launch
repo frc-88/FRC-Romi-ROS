@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find tj2_romi_networktables)/launch/tj2_romi_networktables.launch"/>
+    <include file="$(find tj2_romi_odom)/launch/tj2_romi_odom.launch"/>
+    <include file="$(find tj2_romi_description)/launch/tj2_romi_description.launch"/>
+</launch>
