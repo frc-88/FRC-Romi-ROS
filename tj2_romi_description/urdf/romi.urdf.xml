@@ -1,0 +1,33 @@
+<robot name="romi">
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+
+    <material name="red">
+        <color rgba="0.84 0.18 0.11 1.0"/>
+    </material>
+
+    <gazebo reference="base_link">
+        <material>Gazebo/Red</material>
+        <selfCollide>false</selfCollide>
+        <mu1>0.5</mu1>
+        <mu2>0.5</mu2>
+    </gazebo>
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://tj2_romi_description/meshes/romi.stl"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+
+        <collision>
+            <origin  xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.164 0.149 0.07"/>
+            </geometry>
+        </collision>
+    </link>
+</robot>

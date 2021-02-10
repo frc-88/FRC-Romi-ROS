@@ -1,18 +1,15 @@
 <launch>
-    <!-- <arg name="model" default="$(find db_description)/urdf/dodobot.urdf.xml"/>
+    <arg name="model" default="$(find tj2_romi_description)/urdf/romi.urdf.xml"/>
     <arg name="gui" default="false" />
 
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
     <param name="use_gui" value="$(arg gui)"/>
     <rosparam param="source_list" subst_value="True">
-    [
-        "/dodobot/linear_joint_state",
-        "/dodobot/tilter_joint_state"
-    ]
+    []
     </rosparam>
 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="0.0098 -0.0151 0.0374 0 0 0 1 base_link imu 33" />
 </launch>
