@@ -1,0 +1,22 @@
+[
+    { "name": "ioConfig", "type": "uint16_t" },
+    { "name": "firmwareIdent", "type": "uint8_t" },
+    { "name": "status", "type": "uint8_t" },
+
+    { "name": "heartbeat", "type": "bool" },
+
+    { "name": "builtinConfig", "type": "uint8_t" },
+    { "name": "builtinDioValues", "type": "bool", "arraySize": 4 },
+    { "name": "extIoValues", "type": "int16_t", "arraySize": 5 },
+
+    { "name": "analog", "type": "uint16_t", "arraySize": 2 },
+    { "name": "leftMotor", "type": "int16_t" },
+    { "name": "rightMotor", "type": "int16_t" },
+
+    { "name": "batteryMillivolts", "type": "uint16_t" },
+
+    { "name": "resetLeftEncoder", "type": "bool" },
+    { "name": "resetRightEncoder", "type": "bool" },
+    { "name": "leftEncoder", "type": "int16_t" },
+    { "name": "rightEncoder", "type": "int16_t" }
+]

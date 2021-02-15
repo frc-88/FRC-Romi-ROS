@@ -72,6 +72,13 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     odom_msg.pose.covariance[28] = 1e-3;
     odom_msg.pose.covariance[35] = 1e-3;
 
+    odom_msg.twist.covariance[0] = 1e-3;
+    odom_msg.twist.covariance[7] = 1e-3;
+    odom_msg.twist.covariance[14] = 1e-3;
+    odom_msg.twist.covariance[21] = 1e-3;
+    odom_msg.twist.covariance[28] = 1e-3;
+    odom_msg.twist.covariance[35] = 1e-3;
+
     ROS_INFO("tj2_romi_odom init done");
 }
 
@@ -154,21 +161,26 @@ void TJ2RomiOdom::twist_callback(geometry_msgs::Twist msg)
     // rotation speed at the wheels
     double rotational_speed_mps = angular_speed_radps * wheel_distance_m / 2.0;
 
-    int64_t left_command = m_to_cmd(linear_speed_mps - rotational_speed_mps);
-    int64_t right_command = m_to_cmd(linear_speed_mps + rotational_speed_mps);
+    double left_setpoint = linear_speed_mps - rotational_speed_mps
+    double right_setpoint = linear_speed_mps + rotational_speed_mps
 
-    int64_t larger_cmd = max(left_command, right_command);
+    // TODO: PID update
+
+    double left_command = m_to_cmd(left_setpoint);
+    double right_command = m_to_cmd(right_setpoint);
+
+    double larger_cmd = max(left_command, right_command);
     if (abs(larger_cmd) > max_cmd)
     {
-        int64_t abs_left = abs(left_command);
-        int64_t abs_right = abs(right_command);
+        double abs_left = abs(left_command);
+        double abs_right = abs(right_command);
         if (abs_left > abs_right) {
-            left_command = (int64_t)copysign(max_cmd, left_command);
-            right_command = (int64_t)copysign(max_cmd * (double)abs_right / (double)abs_left, right_command);
+            left_command = copysign(max_cmd, left_command);
+            right_command = copysign(max_cmd * abs_right / abs_left, right_command);
         }
         else {
-            left_command = (int64_t)copysign(max_cmd * (double)abs_left / (double)abs_right, left_command);
-            right_command = (int64_t)copysign(max_cmd, right_command);
+            left_command = copysign(max_cmd * abs_left / abs_right, left_command);
+            right_command = copysign(max_cmd, right_command);
         }
     }
 
