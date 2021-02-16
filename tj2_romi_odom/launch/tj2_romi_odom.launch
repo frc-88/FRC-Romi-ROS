@@ -10,6 +10,29 @@
         <param name="speed_smooth_k_right" value="0.8"/>
 
         <param name="zero_speed_epsilon" value="0.01"/>
-        <param name="publish_odom_tf" value="false"/>
+        <param name="publish_odom_tf" value="true"/>
+        <!-- <param name="publish_odom_tf" value="false"/> -->
+
+        <rosparam param="pose_covariances">
+            [
+                0.001, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.001, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.001, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.001, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.001
+            ]
+        </rosparam>
+        <rosparam param="twist_covariances">
+            [
+                0.001, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.001, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.001, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.001, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.001
+            ]
+        </rosparam>
+
     </node>
 </launch>

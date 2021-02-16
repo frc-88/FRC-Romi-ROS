@@ -18,6 +18,8 @@
 
 using namespace std;
 
+#define THROW_EXCEPTION(msg)  throw std::runtime_error(msg)
+
 struct OdomState {
     double x;  // x position
     double y;  // y position
@@ -68,6 +70,8 @@ private:
     double min_linear_speed, max_linear_speed;
     double zero_speed_epsilon;
     double max_cmd, min_cmd;
+    std::vector<double> pose_covariances;
+    std::vector<double> twist_covariances;
 
     // State variables
     ros::Time odom_timestamp;

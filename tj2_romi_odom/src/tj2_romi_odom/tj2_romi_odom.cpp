@@ -35,6 +35,24 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     ros::param::param<double>("~speed_smooth_k_right", speed_smooth_k_right, 0.9);
     ros::param::param<double>("~wheel_distance_m", wheel_distance_m, 0.1405);
 
+    // Odometry covariances
+    string key;
+    if (!ros::param::search("pose_covariances", key)) {
+        THROW_EXCEPTION("Failed to find pose_covariances parameter");
+    }
+    nh.getParam(key, pose_covariances);
+    if (pose_covariances.size() != 36) {
+        THROW_EXCEPTION("pose_covariances is not length 36");
+    }
+
+    if (!ros::param::search("twist_covariances", key)) {
+        THROW_EXCEPTION("Failed to find twist_covariances parameter");
+    }
+    nh.getParam(key, twist_covariances);
+    if (twist_covariances.size() != 36) {
+        THROW_EXCEPTION("twist_covariances is not length 36");
+    }
+
     odom_timestamp = ros::Time::now();
     prev_odom_time = ros::Time::now();
     prev_left_dist = 0.0;
@@ -49,12 +67,12 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     odom_msg.header.frame_id = odom_parent_frame;
     odom_msg.child_frame_id = child_frame;
     /* [
-        1e-3, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 1e-3, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 1e-3, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 1e-3, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 1e-3, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 1e-3
+        0.001, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.001, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.001, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.001, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.001
     ] */
     /* [
          0,  1,  2,  3,  4,  5,
@@ -64,20 +82,13 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
         24, 25, 26, 27, 28, 29,
         30, 31, 32, 33, 34, 35
     ] */
-    // odom_msg.pose.covariance.resize(36);
-    odom_msg.pose.covariance[0] = 1e-3;
-    odom_msg.pose.covariance[7] = 1e-3;
-    odom_msg.pose.covariance[14] = 1e-3;
-    odom_msg.pose.covariance[21] = 1e-3;
-    odom_msg.pose.covariance[28] = 1e-3;
-    odom_msg.pose.covariance[35] = 1e-3;
 
-    odom_msg.twist.covariance[0] = 1e-3;
-    odom_msg.twist.covariance[7] = 1e-3;
-    odom_msg.twist.covariance[14] = 1e-3;
-    odom_msg.twist.covariance[21] = 1e-3;
-    odom_msg.twist.covariance[28] = 1e-3;
-    odom_msg.twist.covariance[35] = 1e-3;
+    for (size_t i = 0; i < pose_covariances.size(); i++) {
+        odom_msg.pose.covariance[i] = pose_covariances[i];
+    }
+    for (size_t i = 0; i < twist_covariances.size(); i++) {
+        odom_msg.twist.covariance[i] = twist_covariances[i];
+    }
 
     ROS_INFO("tj2_romi_odom init done");
 }
@@ -161,8 +172,8 @@ void TJ2RomiOdom::twist_callback(geometry_msgs::Twist msg)
     // rotation speed at the wheels
     double rotational_speed_mps = angular_speed_radps * wheel_distance_m / 2.0;
 
-    double left_setpoint = linear_speed_mps - rotational_speed_mps
-    double right_setpoint = linear_speed_mps + rotational_speed_mps
+    double left_setpoint = linear_speed_mps - rotational_speed_mps;
+    double right_setpoint = linear_speed_mps + rotational_speed_mps;
 
     // TODO: PID update
 
