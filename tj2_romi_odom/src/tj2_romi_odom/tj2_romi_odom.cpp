@@ -18,6 +18,7 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
 
     // Publishers
     odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 50);
+    twist_pub = nh.advertise<geometry_msgs::Twist>("base_twist", 50);
     motor_left_pub = nh.advertise<std_msgs::Float64>("motor_left", 50);
     motor_right_pub = nh.advertise<std_msgs::Float64>("motor_right", 50);
 
@@ -34,6 +35,7 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     ros::param::param<double>("~speed_smooth_k_left", speed_smooth_k_left, 0.9);
     ros::param::param<double>("~speed_smooth_k_right", speed_smooth_k_right, 0.9);
     ros::param::param<double>("~wheel_distance_m", wheel_distance_m, 0.1405);
+    wheel_dist_half_m = wheel_distance_m / 2.0;
 
     // Odometry covariances
     string key;
@@ -55,6 +57,7 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
 
     odom_timestamp = ros::Time::now();
     prev_odom_time = ros::Time::now();
+    prev_motor_time = ros::Time::now();
     prev_left_dist = 0.0;
     prev_right_dist = 0.0;
     left_dist = 0.0;
@@ -96,12 +99,13 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
 void TJ2RomiOdom::loop()
 {
     compute_odometry();
+    compute_motor_speeds();
     publish_chassis_data();
 }
 
 int TJ2RomiOdom::run()
 {
-    ros::Rate clock_rate(60);  // run loop at 60 Hz
+    ros::Rate clock_rate(30);  // run loop at 30 Hz
 
     int exit_code = 0;
     while (ros::ok())
@@ -124,12 +128,12 @@ int TJ2RomiOdom::run()
 
 void TJ2RomiOdom::encoder_left_callback(std_msgs::Float64 msg)
 {
-    left_dist = msg.data;
+    left_dist = msg.data;  // assuming distance in meters
 }
 
 void TJ2RomiOdom::encoder_right_callback(std_msgs::Float64 msg)
 {
-    right_dist = msg.data;
+    right_dist = msg.data;  // assuming distance in meters
 }
 
 
@@ -152,7 +156,7 @@ double TJ2RomiOdom::bound_speed(double value, double lower, double upper, double
 
 double TJ2RomiOdom::m_to_cmd(double value_m)
 {
-    return value_m / max_linear_speed;
+    return value_m * max_cmd / max_linear_speed; // assuming commands are symmetric
 }
 
 
@@ -170,7 +174,7 @@ void TJ2RomiOdom::twist_callback(geometry_msgs::Twist msg)
 
     // arc = angle * radius
     // rotation speed at the wheels
-    double rotational_speed_mps = angular_speed_radps * wheel_distance_m / 2.0;
+    double rotational_speed_mps = angular_speed_radps * wheel_dist_half_m;
 
     double left_setpoint = linear_speed_mps - rotational_speed_mps;
     double right_setpoint = linear_speed_mps + rotational_speed_mps;
@@ -253,21 +257,37 @@ void TJ2RomiOdom::compute_odometry()
     double dt = (now - prev_odom_time).toSec();
     prev_odom_time = now;
 
-    double delta_left = left_dist - prev_left_dist;
-    double delta_right = right_dist - prev_right_dist;
-    double left_speed_raw = delta_left / dt;
-    double right_speed_raw = delta_right / dt;
-    left_speed += speed_smooth_k_left * (left_speed_raw - left_speed);
-    right_speed += speed_smooth_k_right * (right_speed_raw - right_speed);
-
-    prev_left_dist = left_dist;
-    prev_right_dist = right_dist;
+    compute_motor_speeds();
 
     odom_estimator_update(
         left_speed,
         right_speed,
         dt
     );
+}
+
+
+void TJ2RomiOdom::compute_motor_speeds()
+{
+    ros::Time now = ros::Time::now();
+    double dt = (now - prev_motor_time).toSec();
+    prev_motor_time = now;
+
+    double delta_left = left_dist - prev_left_dist;
+    prev_left_dist = left_dist;
+    double left_speed_raw = delta_left / dt;
+    left_speed += speed_smooth_k_left * (left_speed_raw - left_speed);
+    if (abs(left_speed) < zero_speed_epsilon) {
+        left_speed = 0.0;
+    }
+
+    double delta_right = right_dist - prev_right_dist;
+    prev_right_dist = right_dist;
+    double right_speed_raw = delta_right / dt;
+    right_speed += speed_smooth_k_right * (right_speed_raw - right_speed);
+    if (abs(right_speed) < zero_speed_epsilon) {
+        right_speed = 0.0;
+    }
 }
 
 void TJ2RomiOdom::publish_chassis_data()
@@ -319,4 +339,9 @@ void TJ2RomiOdom::publish_chassis_data()
     odom_msg.twist.twist.angular.z = odom_state->w;
 
     odom_pub.publish(odom_msg);
+
+    base_twist_msg.linear.x = odom_state->v;
+    base_twist_msg.angular.z = odom_state->w;
+
+    twist_pub.publish(base_twist_msg);
 }

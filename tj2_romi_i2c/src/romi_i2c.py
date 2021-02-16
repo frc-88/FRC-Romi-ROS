@@ -18,6 +18,33 @@ class PinMode:
         return mode in cls.modes
 
 
+class Encoder:
+    def __init__(self, start_ticks):
+        self.prev_ticks = 0
+        self.max_ticks = 0x7fff
+        self.min_ticks = -0x8000
+        self.max_dticks = 1000  # maximum possible instantenous change in encoder values
+        self.delta_threshold = self.max_ticks - self.min_ticks - self.max_dticks
+        self.overflow_count = 0
+        self.start_ticks = start_ticks - self.min_ticks
+    
+    def update(self, ticks):
+        dticks = ticks - self.prev_ticks
+        self.prev_ticks = ticks
+        if abs(dticks) > self.delta_threshold:
+            # overflow has occurred
+            # increment or decrement higher order bits
+            if ticks > 0:
+                self.overflow_count -= 1
+            else:
+                self.overflow_count += 1
+    
+    @property
+    def ticks(self):
+        ticks = (self.overflow_count << 16) | (self.prev_ticks - self.min_ticks)
+        return ticks - self.start_ticks
+
+
 class RomiI2C(object):
     def __init__(self, bus, sharedmem_path):
         self.bus = bus
@@ -32,6 +59,10 @@ class RomiI2C(object):
 
         self.write_queue = Queue()
         self.i2c_lock = Lock()
+
+        self.left_encoder = Encoder(self._read_left_encoder())
+        self.right_encoder = Encoder(self._read_right_encoder())
+
     
     def set_io_config(self, pin11=None, pin4=None, pin20=None, pin21=None, pin22=None):
         pins = [pin11, pin4, pin20, pin21, pin22]
@@ -76,10 +107,18 @@ class RomiI2C(object):
         self.write("resetRightEncoder", 1)
     
     def get_left_encoder(self):
-        return self.read("leftEncoder") * self.ticks_to_m
+        self.left_encoder.update(self._read_left_encoder())
+        return self.left_encoder.ticks * self.ticks_to_m
     
     def get_right_encoder(self):
-        return self.read("rightEncoder") * self.ticks_to_m
+        self.right_encoder.update(self._read_right_encoder())
+        return self.right_encoder.ticks * self.ticks_to_m
+    
+    def _read_left_encoder(self):
+        return self.read("leftEncoder")
+    
+    def _read_right_encoder(self):
+        return self.read("rightEncoder")
     
     def heartbeat(self):
         self.write("heartbeat", 1)

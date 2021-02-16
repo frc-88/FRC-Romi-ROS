@@ -77,8 +77,9 @@ class TJ2RomiI2C(object):
         self.bus = SMBus(1)
 
     def run(self):
-        self.romi_i2c.reset_left_encoder()
-        self.romi_i2c.reset_right_encoder()
+        # offset applied in RomiI2C
+        # self.romi_i2c.reset_left_encoder()
+        # self.romi_i2c.reset_right_encoder()
 
         while not rospy.is_shutdown():
             try:

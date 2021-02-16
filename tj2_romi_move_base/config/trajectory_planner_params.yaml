@@ -2,7 +2,7 @@
 acc_lim_x: 100.0
 acc_lim_theta:  100.0
 
-max_vel_x: 0.2  # max speed 0.33 m/s
+max_vel_x: 0.3  # max speed 0.33 m/s
 min_vel_x: 0.01
 
 # max_vel_theta: 3.3
