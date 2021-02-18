@@ -36,7 +36,7 @@ public class Drivetrain extends SubsystemBase {
     // Set up the BuiltInAccelerometer
     private final BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
 
-    private final RomiNetworkTables m_tables;
+    // private final RomiNetworkTables m_tables;
 
     /** Creates a new Drivetrain. */
     public Drivetrain() {
@@ -45,7 +45,7 @@ public class Drivetrain extends SubsystemBase {
         m_rightEncoder.setDistancePerPulse((Math.PI * kWheelDiameterInch) / kCountsPerRevolution);
         resetEncoders();
 
-        m_tables = new RomiNetworkTables();
+        // m_tables = new RomiNetworkTables();
     }
 
     public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
@@ -140,15 +140,15 @@ public class Drivetrain extends SubsystemBase {
     public void periodic()
     {
         // This method will be called once per scheduler run
-        m_tables.setImuTime(Timer.getFPGATimestamp());
-        m_tables.setAccel(m_accelerometer.getX(), m_accelerometer.getY(), m_accelerometer.getZ());
-        m_tables.setGyro(m_gyro.getRateX(), m_gyro.getRateY(), m_gyro.getRateZ());
-        m_tables.setEncoders(getLeftDistanceInch(), getRightDistanceInch());
-        if (m_tables.didMotorCmdUpdated()) {
-            m_diffDrive.tankDrive(
-                m_tables.getLeftMotor(),
-                m_tables.getRightMotor()
-            );
-        }
+        // m_tables.setImuTime(Timer.getFPGATimestamp());
+        // m_tables.setAccel(m_accelerometer.getX(), m_accelerometer.getY(), m_accelerometer.getZ());
+        // m_tables.setGyro(m_gyro.getRateX(), m_gyro.getRateY(), m_gyro.getRateZ());
+        // m_tables.setEncoders(getLeftDistanceInch(), getRightDistanceInch());
+        // if (m_tables.didMotorCmdUpdated()) {
+        //     m_diffDrive.tankDrive(
+        //         m_tables.getLeftMotor(),
+        //         m_tables.getRightMotor()
+        //     );
+        // }
     }
 }
