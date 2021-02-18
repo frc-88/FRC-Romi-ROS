@@ -32,7 +32,7 @@ lethal_cost: 253  # 253
 neutral_cost: 66  # 50
 
 # Factor to multiply each cost from costmap by (dynamic reconfigure)
-cost_factor: 0.55  # 3.0
+cost_factor: 0.01  # 0.55  # 3.0
 
 # Publish Potential Costmap (dynamic reconfigure)
 publish_potential: true

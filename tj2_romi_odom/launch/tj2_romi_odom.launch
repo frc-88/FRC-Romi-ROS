@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <node name="tj2_romi_odom" pkg="tj2_romi_odom" type="tj2_romi_odom_node" output="screen" required="true">
-        <param name="wheel_distance_m" value="0.11"/>
+        <param name="wheel_distance_m" value="0.1397"/>
 
         <param name="min_angular_speed" value="0.75"/>
         <param name="max_angular_speed" value="9.30"/>

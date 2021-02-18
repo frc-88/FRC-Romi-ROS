@@ -11,7 +11,7 @@
         <param name="gyro_offset_y" value="-6.056"/>
         <param name="gyro_offset_z" value="-1.603"/>
 
-        <param name="wheel_diameter_m" value="0.0545"/>
+        <param name="wheel_diameter_m" value="0.0692"/>
     </node>
 </launch>
 
