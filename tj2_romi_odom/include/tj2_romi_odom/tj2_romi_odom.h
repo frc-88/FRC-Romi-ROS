@@ -18,6 +18,8 @@
 
 using namespace std;
 
+#define THROW_EXCEPTION(msg)  throw std::runtime_error(msg)
+
 struct OdomState {
     double x;  // x position
     double y;  // y position
@@ -62,16 +64,20 @@ private:
     bool use_sensor_msg_time;
 
     double wheel_distance_m;
+    double wheel_dist_half_m;
     double speed_smooth_k_left, speed_smooth_k_right;
 
     double min_angular_speed, max_angular_speed;
     double min_linear_speed, max_linear_speed;
     double zero_speed_epsilon;
     double max_cmd, min_cmd;
+    std::vector<double> pose_covariances;
+    std::vector<double> twist_covariances;
 
     // State variables
     ros::Time odom_timestamp;
     ros::Time prev_odom_time;
+    ros::Time prev_motor_time;
     double prev_left_dist, prev_right_dist;
     double left_dist, right_dist;
     double left_speed, right_speed;
@@ -79,6 +85,7 @@ private:
     // Publishers
     tf2_ros::TransformBroadcaster tf_broadcaster;
     ros::Publisher odom_pub;
+    ros::Publisher twist_pub;
     ros::Publisher motor_left_pub;
     ros::Publisher motor_right_pub;
 
@@ -95,11 +102,13 @@ private:
     // messages
     OdomState* odom_state;
     nav_msgs::Odometry odom_msg;
+    geometry_msgs::Twist base_twist_msg;
     std_msgs::Float64 motor_left_msg;
     std_msgs::Float64 motor_right_msg;
 
     // Compute odometry
     void odom_estimator_update(double left_speed, double right_speed, double dt);
+    void compute_motor_speeds();
     void compute_odometry();
     void publish_chassis_data();
 
