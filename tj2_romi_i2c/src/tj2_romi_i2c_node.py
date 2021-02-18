@@ -27,8 +27,10 @@ class TJ2RomiI2C(object):
         self.gyro_offset_y = rospy.get_param("~gyro_offset_y", 0.0)
         self.gyro_offset_z = rospy.get_param("~gyro_offset_z", 0.0)
 
+        self.wheel_diameter = rospy.get_param("~wheel_diameter_m", 0.0545)
+
         self.bus = SMBus(1)
-        self.romi_i2c = RomiI2C(self.bus, self.sharedmem_path)
+        self.romi_i2c = RomiI2C(self.bus, self.sharedmem_path, self.wheel_diameter)
         self.imu_i2c = ImuI2C(
             self.bus,
             accel_scale="SCALE_2G",

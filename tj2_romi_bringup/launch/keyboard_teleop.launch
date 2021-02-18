@@ -4,6 +4,6 @@
         <param name="cmd_vel" value="/cmd_vel"/>
         <param name="speed" value="0.25"/>
         <param name="turn" value="1.0"/>
-        <param name="repeat_rate" value="5.0"/>
+        <param name="repeat_rate" value="0.0"/>
     </node>
 </launch>

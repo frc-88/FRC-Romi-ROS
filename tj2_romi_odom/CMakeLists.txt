@@ -60,11 +60,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  OdomReset.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -74,10 +73,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -131,6 +130,7 @@ link_directories(${catkin_LIBRARY_DIRS})
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
     src/${PROJECT_NAME}/${PROJECT_NAME}.cpp
+    src/${PROJECT_NAME}/speed_pid.cpp
 )
 
 ## Add cmake target dependencies of the library

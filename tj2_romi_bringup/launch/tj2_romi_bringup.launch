@@ -4,5 +4,6 @@
     <include file="$(find tj2_romi_i2c)/launch/tj2_romi_i2c.launch"/>
     <include file="$(find tj2_romi_odom)/launch/tj2_romi_odom.launch"/>
     <include file="$(find tj2_romi_description)/launch/tj2_romi_description.launch"/>
+    <include file="$(find tj2_romi_move_base)/launch/static_map.launch"/>
     <!-- <include file="$(find tj2_romi_ekf)/launch/tj2_romi_ekf.launch"/> -->
 </launch>
