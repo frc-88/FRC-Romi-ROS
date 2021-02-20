@@ -1,16 +1,20 @@
 global_frame: odom
 robot_base_frame: base_link
-update_frequency: 3.0
+update_frequency: 2.0
 publish_frequency: 1.0
-width: 2.0
-height: 2.0
+width: 1.0
+height: 1.0
 # origin_x: -1.5
 # origin_y: -1.5
-resolution: 0.1
+resolution: 0.005
 # static_map: false  # unnecessary with plugins
 rolling_window: true
-cost_scaling_factor: 2.5
-inflation_radius: 0.0
+
+robot_radius: 0.07
+inflation:
+    enabled: true
+    cost_scaling_factor: 30.0
+    inflation_radius: 0.2
 
 plugins:
     - {name: static,                    type: "costmap_2d::StaticLayer"}

@@ -3,12 +3,14 @@
     <node name="tj2_romi_odom" pkg="tj2_romi_odom" type="tj2_romi_odom_node" output="screen" required="true">
         <param name="wheel_distance_m" value="0.1397"/>
 
-        <param name="min_angular_speed" value="0.75"/>
+        <param name="min_angular_speed" value="0.7"/>
         <param name="max_angular_speed" value="9.30"/>
         <param name="min_linear_speed" value="0.1"/>
         <param name="max_linear_speed" value="0.66"/>
         <param name="max_cmd" value="0.009"/>
         <param name="min_cmd" value="-0.009"/>
+
+        <param name="zero_epsilon" value="1E-19"/>
 
         <param name="left_Kp" value="0.4"/>
         <param name="left_Ki" value="0.0"/>

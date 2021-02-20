@@ -13,6 +13,7 @@ TJ2RomiOdom::TJ2RomiOdom(ros::NodeHandle* nodehandle):nh(*nodehandle)
     ros::param::param<double>("~min_linear_speed", min_linear_speed, 0.0);
     ros::param::param<double>("~max_linear_speed", max_linear_speed, 0.0);
     ros::param::param<double>("~zero_speed_epsilon", zero_speed_epsilon, 0.01);
+    ros::param::param<double>("~zero_epsilon", zero_epsilon, 1E-4);
     ros::param::param<double>("~max_cmd", max_cmd, 1.0);
     ros::param::param<double>("~min_cmd", min_cmd, -1.0);
 
@@ -193,19 +194,32 @@ void TJ2RomiOdom::twist_callback(geometry_msgs::Twist msg)
     double linear_speed_mps = msg.linear.x;  // m/s
     double angular_speed_radps = msg.angular.z;  // rad/s
 
-    linear_speed_mps = bound_speed(linear_speed_mps, min_linear_speed, max_linear_speed, zero_speed_epsilon);
-    angular_speed_radps = bound_speed(
+    double bounded_linear_speed_mps = bound_speed(
+        linear_speed_mps,
+        min_linear_speed,
+        max_linear_speed,
+        zero_speed_epsilon);
+
+    // // If there's any amount of angular speed, set linear min bound to zero
+    // double bounded_linear_speed_mps = bound_speed(
+    //     linear_speed_mps,
+    //     double_equal(angular_speed_radps, 0.0, zero_epsilon) ? min_linear_speed : 0.0,
+    //     max_linear_speed,
+    //     double_equal(angular_speed_radps, 0.0, zero_epsilon) ? zero_speed_epsilon : 0.0);
+
+    // If there's any amount of linear speed, set angular min bound to zero
+    double bounded_angular_speed_radps = bound_speed(
         angular_speed_radps,
-        (linear_speed_mps == 0.0) ? min_angular_speed : 0.0,
+        double_equal(linear_speed_mps, 0.0, zero_epsilon) ? min_angular_speed : 0.0,
         max_angular_speed,
-        (linear_speed_mps == 0.0) ? zero_speed_epsilon : 0.0);
+        double_equal(linear_speed_mps, 0.0, zero_epsilon) ? zero_speed_epsilon : 0.0);
 
     // arc = angle * radius
     // rotation speed at the wheels
-    double rotational_speed_mps = angular_speed_radps * wheel_dist_half_m;
+    double rotational_speed_mps = bounded_angular_speed_radps * wheel_dist_half_m;
 
-    double left_setpoint = linear_speed_mps - rotational_speed_mps;
-    double right_setpoint = linear_speed_mps + rotational_speed_mps;
+    double left_setpoint = bounded_linear_speed_mps - rotational_speed_mps;
+    double right_setpoint = bounded_linear_speed_mps + rotational_speed_mps;
 
     left_pid->set_target(left_setpoint);
     right_pid->set_target(right_setpoint);

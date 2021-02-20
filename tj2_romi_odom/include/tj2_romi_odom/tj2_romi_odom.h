@@ -47,6 +47,10 @@ void reset_odom_state(OdomState* state)
     state->vy = 0.0;
 }
 
+double double_equal(double d1, double d2, double epsilon) {
+    return abs(d1 - d2) < epsilon;
+}
+
 
 OdomState* init_odom_state()
 {
@@ -73,6 +77,7 @@ private:
     double min_angular_speed, max_angular_speed;
     double min_linear_speed, max_linear_speed;
     double zero_speed_epsilon;
+    double zero_epsilon;
     double max_cmd, min_cmd;
     std::vector<double> pose_covariances;
     std::vector<double> twist_covariances;
