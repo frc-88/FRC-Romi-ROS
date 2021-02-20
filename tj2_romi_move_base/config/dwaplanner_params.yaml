@@ -7,13 +7,13 @@
 ## Robot Configuration Parameters ##
 
 # The x acceleration limit of the robot in meters/sec^2
-acc_lim_x: 1.0
+acc_lim_x: 0.5
 
 # The y acceleration limit of the robot in meters/sec^2
 acc_lim_y: 0.0
 
 # The rotational acceleration limit of the robot in radians/sec^2
-acc_lim_th: 50.0
+acc_lim_th: 0.5
 
 # The absolute value of the maximum translational velocity for the robot in m/s
 max_vel_trans: 0.20  # max speed 0.66 m/s
@@ -25,7 +25,7 @@ min_vel_trans: 0.0  # 0.05
 max_vel_x: 0.20  # 0.66
 
 # The minimum x velocity for the robot in m/s, negative for backwards motion.
-min_vel_x: -0.1  # -0.15
+min_vel_x: -0.0  # -0.15
 
 # The maximum y velocity for the robot in m/s
 max_vel_y: 0.0
@@ -63,13 +63,13 @@ sim_time: 1.0  # 1.7
 sim_granularity: 0.075  # 0.025
 
 # The number of samples to use when exploring the x velocity space
-vx_samples: 3  # 3
+vx_samples: 10  # 3
 
 # The number of samples to use when exploring the y velocity space
 vy_samples: 0  # 10
 
 # The number of samples to use when exploring the theta velocity space
-vth_samples: 15  # 20
+vth_samples: 20  # 20
 
 # The frequency at which this controller will be called in Hz.
 # Overrides move_base's global controller_frequency parameter if set
