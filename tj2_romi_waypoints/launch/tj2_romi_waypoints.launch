@@ -1,0 +1,8 @@
+<launch>
+    <!-- <arg name="waypoints_path" default="waypoints.yaml"/> -->
+    <arg name="waypoints_path" default="$(find tj2_romi_move_base)/config/mondrian_madness/mondrian_madness_waypoints.yaml"/>
+    <node name="tj2_romi_waypoints" pkg="tj2_romi_waypoints" type="tj2_romi_waypoints_node.py" output="screen" required="false">
+        <param name="waypoints_path" value="$(arg waypoints_path)"/>
+        <param name="intermediate_tolerance" value="0.0"/>
+    </node>
+</launch>
