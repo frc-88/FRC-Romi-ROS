@@ -15,6 +15,9 @@
 
 #include <sensor_msgs/JointState.h>
 
+#include <tj2_romi_odom/speed_pid.h>
+#include <tj2_romi_odom/OdomReset.h>
+
 
 using namespace std;
 
@@ -44,6 +47,10 @@ void reset_odom_state(OdomState* state)
     state->vy = 0.0;
 }
 
+double double_equal(double d1, double d2, double epsilon) {
+    return abs(d1 - d2) < epsilon;
+}
+
 
 OdomState* init_odom_state()
 {
@@ -70,22 +77,29 @@ private:
     double min_angular_speed, max_angular_speed;
     double min_linear_speed, max_linear_speed;
     double zero_speed_epsilon;
+    double zero_epsilon;
     double max_cmd, min_cmd;
     std::vector<double> pose_covariances;
     std::vector<double> twist_covariances;
 
+    double left_Kp, left_Ki, left_Kd;
+    double right_Kp, right_Ki, right_Kd;
+
     // State variables
     ros::Time odom_timestamp;
     ros::Time prev_odom_time;
-    ros::Time prev_motor_time;
     double prev_left_dist, prev_right_dist;
     double left_dist, right_dist;
     double left_speed, right_speed;
 
+    // Speed PIDs
+    SpeedPID* left_pid;
+    SpeedPID* right_pid;
+    void compute_motor_commands();
+
     // Publishers
     tf2_ros::TransformBroadcaster tf_broadcaster;
     ros::Publisher odom_pub;
-    ros::Publisher twist_pub;
     ros::Publisher motor_left_pub;
     ros::Publisher motor_right_pub;
 
@@ -93,6 +107,11 @@ private:
     ros::Subscriber twist_sub;
     ros::Subscriber encoder_left_sub;
     ros::Subscriber encoder_right_sub;
+
+    // Services
+    ros::ServiceServer odom_reset_srv;
+    string odom_reset_service_name;
+    bool odom_reset_callback(tj2_romi_odom::OdomReset::Request &req, tj2_romi_odom::OdomReset::Response &resp);
 
     // Sub callbacks
     void twist_callback(geometry_msgs::Twist msg);
@@ -102,14 +121,13 @@ private:
     // messages
     OdomState* odom_state;
     nav_msgs::Odometry odom_msg;
-    geometry_msgs::Twist base_twist_msg;
     std_msgs::Float64 motor_left_msg;
     std_msgs::Float64 motor_right_msg;
 
     // Compute odometry
     void odom_estimator_update(double left_speed, double right_speed, double dt);
-    void compute_motor_speeds();
-    void compute_odometry();
+    void compute_motor_speeds(double dt);
+    void compute_odometry(double dt);
     void publish_chassis_data();
 
     // Twist commands

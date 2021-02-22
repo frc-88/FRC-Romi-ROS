@@ -2,13 +2,17 @@ global_frame: map
 robot_base_frame: base_link
 update_frequency: 1.0
 publish_frequency: 0.5
-resolution: 0.1
+resolution: 0.005
 # static_map: true
 rolling_window: false
-cost_scaling_factor: 3.0
-infration_radius: 0.0
 # width: 5.0
 # height: 5.0
+
+robot_radius: 0.085
+inflation:
+    enabled: true
+    cost_scaling_factor: 10.0
+    inflation_radius: 0.2
 
 plugins:
     - {name: static,                    type: "costmap_2d::StaticLayer"}

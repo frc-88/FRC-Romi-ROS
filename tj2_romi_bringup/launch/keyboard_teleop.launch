@@ -3,7 +3,7 @@
     <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen" required="true">
         <param name="cmd_vel" value="/cmd_vel"/>
         <param name="speed" value="0.25"/>
-        <param name="turn" value="1.0"/>
-        <param name="repeat_rate" value="5.0"/>
+        <param name="turn" value="1.6"/>
+        <param name="repeat_rate" value="0.0"/>
     </node>
 </launch>

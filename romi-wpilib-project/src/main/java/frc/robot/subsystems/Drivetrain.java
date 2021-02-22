@@ -39,9 +39,8 @@ public class Drivetrain extends SubsystemBase {
 
     // Set up the BuiltInAccelerometer
     private final BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
-    // Creating my kinematics object: track width of 5.5 inches
-    // private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(5.5));
-    private DifferentialDriveOdometry m_odometry;
+
+    // private final RomiNetworkTables m_tables;
 
     /** Creates a new Drivetrain. */
     public Drivetrain() {
@@ -49,13 +48,8 @@ public class Drivetrain extends SubsystemBase {
         m_leftEncoder.setDistancePerPulse((Math.PI * kWheelDiameterInch) / kCountsPerRevolution);
         m_rightEncoder.setDistancePerPulse((Math.PI * kWheelDiameterInch) / kCountsPerRevolution);
         resetEncoders();
-        resetGyro();
-        // Creating my odometry object. Here,
-        // our starting pose is 0 meters along the long end of the field and in the
-        // center of the field along the short end, facing forward.
-        m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroAngleX()),
-                new Pose2d(0, 0, new Rotation2d()));
 
+        // m_tables = new RomiNetworkTables();
     }
 
     public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
@@ -147,13 +141,18 @@ public class Drivetrain extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void periodic()
+    {
         // This method will be called once per scheduler run
-        // Update the pose
-        Pose2d m_pose = m_odometry.update(Rotation2d.fromDegrees(getGyroAngleX()), getLeftDistanceInch(),
-            getRightDistanceInch());
-        SmartDashboard.putNumber("PoseX", m_pose.getX());
-        SmartDashboard.putNumber("PoseY", m_pose.getY());
-
+        // m_tables.setImuTime(Timer.getFPGATimestamp());
+        // m_tables.setAccel(m_accelerometer.getX(), m_accelerometer.getY(), m_accelerometer.getZ());
+        // m_tables.setGyro(m_gyro.getRateX(), m_gyro.getRateY(), m_gyro.getRateZ());
+        // m_tables.setEncoders(getLeftDistanceInch(), getRightDistanceInch());
+        // if (m_tables.didMotorCmdUpdated()) {
+        //     m_diffDrive.tankDrive(
+        //         m_tables.getLeftMotor(),
+        //         m_tables.getRightMotor()
+        //     );
+        // }
     }
 }

@@ -46,12 +46,12 @@ class Encoder:
 
 
 class RomiI2C(object):
-    def __init__(self, bus, sharedmem_path):
+    def __init__(self, bus, sharedmem_path, wheel_diameter):
         self.bus = bus
         self.address = 0x14
         self.sharedmem_map = self.load_config(sharedmem_path)
 
-        self.wheel_diameter = 0.070  # m
+        self.wheel_diameter = wheel_diameter  # m
         self.ticks_per_rotation = 1440.0
         self.ticks_to_m = math.pi * self.wheel_diameter / self.ticks_per_rotation
 
@@ -82,12 +82,14 @@ class RomiI2C(object):
         
         self.write("ioConfig", config_register)
     
-    def cap_velocity(self, velocity):
+    def cap_velocity(self, velocity, reverse=False):
         # velocity: -1.0...1.0
         if velocity > 1.0:
             velocity = 1.0
         if velocity < -1.0:
             velocity = -1.0
+        if reverse:
+            velocity *= -1
         
         velocity = int(0x7fff * velocity)
         return velocity
@@ -97,7 +99,7 @@ class RomiI2C(object):
         self.write("leftMotor", velocity)
     
     def set_right_motor(self, velocity):
-        velocity = -self.cap_velocity(velocity)
+        velocity = self.cap_velocity(velocity, True)
         self.write("rightMotor", velocity)
     
     def reset_left_encoder(self):
