@@ -8,5 +8,6 @@
     </include>
     <include file="$(find tj2_romi_description)/launch/tj2_romi_description.launch"/>
     <include file="$(find tj2_romi_move_base)/launch/static_map.launch"/>
+    <include file="$(find tj2_romi_waypoints)/launch/tj2_romi_waypoints.launch"/>
     <include if="$(arg use_ekf)" file="$(find tj2_romi_ekf)/launch/tj2_romi_ekf.launch"/>
 </launch>
