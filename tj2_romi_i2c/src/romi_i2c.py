@@ -45,6 +45,8 @@ class Encoder:
         return ticks - self.start_ticks
 
 
+HCSR04_OUT_OF_RANGE = 38000.0  # value ultrasonic sensor returns when out of range
+
 class RomiI2C(object):
     def __init__(self, bus, sharedmem_path, wheel_diameter):
         self.bus = bus
@@ -117,10 +119,17 @@ class RomiI2C(object):
         return self.right_encoder.ticks * self.ticks_to_m
     
     def get_ultrasonic_dist_1(self):
-        return self.read("ultrasonicDist1")
+        return self._read_ultrasonic("ultrasonicDist1")
     
     def get_ultrasonic_dist_2(self):
-        return self.read("ultrasonicDist2")
+        return self._read_ultrasonic("ultrasonicDist2")
+    
+    def _read_ultrasonic(self, key):
+        dist = self.read(key)
+        if dist == HCSR04_OUT_OF_RANGE:
+            return float("nan")
+        else:
+            return dist
     
     def _read_left_encoder(self):
         return self.read("leftEncoder")

@@ -75,7 +75,8 @@ class TJ2RomiI2C(object):
         self.prev_timestamp = 0.0
 
         self.heartbeat_timer = rospy.Timer(rospy.Duration(0.25), self.heartbeat_callback)
-        
+        self.ultrasonic_timer = rospy.Timer(rospy.Duration(1.0 / 10.0), self.ultrasonic_callback)
+
         self.clock_rate = rospy.Rate(30.0)
 
     def reinit_bus(self):
@@ -95,7 +96,7 @@ class TJ2RomiI2C(object):
                 
                 self.publish_imu()
                 self.publish_enc()
-                self.publish_ultrasonic()
+                # self.publish_ultrasonic()
             except IOError as e:
                 self.reinit_bus()
                 rospy.logwarn("Reinitialized I2C bus: %s" % (str(e)))
@@ -141,6 +142,9 @@ class TJ2RomiI2C(object):
         #     self.ultrasonic2_msg.data = dist2
         #     self.ultrasonic2_pub.publish(self.ultrasonic2_msg)
 
+    def ultrasonic_callback(self, timer):
+        self.publish_ultrasonic()
+    
     def motor_left_callback(self, msg):
         self.romi_i2c.set_left_motor(msg.data)
     
