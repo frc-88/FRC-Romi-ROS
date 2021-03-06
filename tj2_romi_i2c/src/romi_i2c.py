@@ -116,6 +116,12 @@ class RomiI2C(object):
         self.right_encoder.update(self._read_right_encoder())
         return self.right_encoder.ticks * self.ticks_to_m
     
+    def get_ultrasonic_dist_1(self):
+        return self.read("ultrasonicDist1")
+    
+    def get_ultrasonic_dist_2(self):
+        return self.read("ultrasonicDist2")
+    
     def _read_left_encoder(self):
         return self.read("leftEncoder")
     
@@ -188,6 +194,9 @@ class RomiI2C(object):
         elif mem_type == "bool":
             mem_format = "b"
             size = 1
+        elif mem_type == "float":
+            mem_format = "f"
+            size = 4
         else:
             raise ValueError("Invalid mem_type: %s" % mem_type)
         

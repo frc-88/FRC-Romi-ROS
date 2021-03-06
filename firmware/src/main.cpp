@@ -46,7 +46,12 @@ PololuRPiSlave<Data, 20> rPiLink;
 */
 const int ULTRASONIC1_TRIGGER = 4;
 const int ULTRASONIC1_ECHO = 11;
+const int ULTRASONIC2_TRIGGER = 20;
+const int ULTRASONIC2_ECHO = 21;
+uint32_t lastUltrasonicPing = 0;
+int pingState = 0;
 HCSR04 ultrasonic1(ULTRASONIC1_TRIGGER, ULTRASONIC1_ECHO, 20, 300);
+HCSR04 ultrasonic2(ULTRASONIC2_TRIGGER, ULTRASONIC2_ECHO, 20, 300);
 
 uint8_t builtinDio0Config = kModeDigitalIn;
 uint8_t builtinDio1Config = kModeDigitalOut;
@@ -62,7 +67,8 @@ LowVoltageHelper lvHelper;
 bool isTestMode = false;
 bool isConfigured = false;
 
-unsigned long lastHeartbeat = 0;
+uint32_t lastHeartbeat = 0;
+uint32_t currentTime = 0;
 
 bool testModeLedFlag = false;
 unsigned long lastSwitchTime = 0;
@@ -237,6 +243,7 @@ void testModeLoop()
 
 void normalModeLoop()
 {
+    currentTime = millis();
     uint16_t battMV = readBatteryMillivolts();
     lvHelper.update(battMV);
 
@@ -251,7 +258,7 @@ void normalModeLoop()
     }
 
     // Check heartbeat and shutdown motors if necessary
-    if (millis() - lastHeartbeat > 1000)
+    if (currentTime - lastHeartbeat > 1000)
     {
         rPiLink.buffer.leftMotor = 0;
         rPiLink.buffer.rightMotor = 0;
@@ -259,7 +266,7 @@ void normalModeLoop()
 
     if (rPiLink.buffer.heartbeat)
     {
-        lastHeartbeat = millis();
+        lastHeartbeat = currentTime;
         rPiLink.buffer.heartbeat = false;
     }
 
@@ -281,7 +288,20 @@ void normalModeLoop()
     // {
     //     configureIO(ioConfig);
     // }
-    rPiLink.buffer.ultrasonicDist1 = ultrasonic1.getEchoPulseLength();
+
+    // wait 50msec, or more, until echo from previous measurement disappears
+    if (currentTime - lastUltrasonicPing > 50)
+    {
+        if (pingState == 0) {
+            rPiLink.buffer.ultrasonicDist1 = ultrasonic1.getDistance();
+            pingState++;
+        }
+        else if (pingState == 1) {
+            rPiLink.buffer.ultrasonicDist2 = ultrasonic2.getDistance();
+            pingState = 0;
+        }
+        lastUltrasonicPing = currentTime;
+    }
 
     // Update the built-ins
     rPiLink.buffer.builtinDioValues[0] = buttonA.isPressed();
@@ -397,6 +417,7 @@ void setup()
     }
 
     ultrasonic1.begin();
+    ultrasonic2.begin();
 }
 
 void loop()

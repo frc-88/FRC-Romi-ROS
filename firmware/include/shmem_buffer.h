@@ -24,6 +24,6 @@ struct Data {
   bool resetRightEncoder;
   int16_t leftEncoder;
   int16_t rightEncoder;
-  uint16_t ultrasonicDist1;
-  uint16_t ultrasonicDist2;
+  float ultrasonicDist1;
+  float ultrasonicDist2;
 };

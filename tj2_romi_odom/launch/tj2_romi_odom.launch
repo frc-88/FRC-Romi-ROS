@@ -15,10 +15,10 @@
 
         <param name="left_Kp" value="0.4"/>
         <param name="left_Ki" value="0.0"/>
-        <param name="left_Kd" value="0.01"/>
+        <param name="left_Kd" value="0.0"/>
         <param name="right_Kp" value="0.4"/>
         <param name="right_Ki" value="0.0"/>
-        <param name="right_Kd" value="0.01"/>
+        <param name="right_Kd" value="0.0"/>
 
         <param name="speed_smooth_k_left" value="0.7"/>
         <param name="speed_smooth_k_right" value="0.7"/>
