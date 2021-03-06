@@ -18,5 +18,8 @@
     { "name": "resetLeftEncoder", "type": "bool" },
     { "name": "resetRightEncoder", "type": "bool" },
     { "name": "leftEncoder", "type": "int16_t" },
-    { "name": "rightEncoder", "type": "int16_t" }
+    { "name": "rightEncoder", "type": "int16_t" },
+
+    { "name": "ultrasonicDist1", "type": "uint16_t" },
+    { "name": "ultrasonicDist2", "type": "uint16_t" }
 ]
