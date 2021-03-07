@@ -61,12 +61,6 @@ class TJ2RomiI2C(object):
         self.enc_right_pub = rospy.Publisher("encoder_right", Float64, queue_size=50)
         self.enc_right_msg = Float64()
 
-        self.ultrasonic1_pub = rospy.Publisher("ultrasonic1", Float64, queue_size=50)
-        self.ultrasonic1_msg = Float64()
-
-        self.ultrasonic2_pub = rospy.Publisher("ultrasonic2", Float64, queue_size=50)
-        self.ultrasonic2_msg = Float64()
-
         self.motor_left_sub = rospy.Subscriber("motor_left", Float64, self.motor_left_callback, queue_size=50)
         self.motor_right_sub = rospy.Subscriber("motor_right", Float64, self.motor_right_callback, queue_size=50)
 
@@ -75,7 +69,6 @@ class TJ2RomiI2C(object):
         self.prev_timestamp = 0.0
 
         self.heartbeat_timer = rospy.Timer(rospy.Duration(0.25), self.heartbeat_callback)
-        self.ultrasonic_timer = rospy.Timer(rospy.Duration(1.0 / 10.0), self.ultrasonic_callback)
 
         self.clock_rate = rospy.Rate(30.0)
 
@@ -126,24 +119,6 @@ class TJ2RomiI2C(object):
         if right_dist != self.enc_right_msg.data:
             self.enc_right_msg.data = right_dist
             self.enc_right_pub.publish(self.enc_right_msg)
-    
-    def publish_ultrasonic(self):
-        self.ultrasonic1_msg.data = self.romi_i2c.get_ultrasonic_dist_1()
-        self.ultrasonic2_msg.data = self.romi_i2c.get_ultrasonic_dist_2()
-        self.ultrasonic1_pub.publish(self.ultrasonic1_msg)
-        self.ultrasonic2_pub.publish(self.ultrasonic2_msg)
-
-        # dist1 = self.romi_i2c.get_ultrasonic_dist_1()
-        # dist2 = self.romi_i2c.get_ultrasonic_dist_2()
-        # if dist1 != self.ultrasonic1_msg.data:
-        #     self.ultrasonic1_msg.data = dist1
-        #     self.ultrasonic1_pub.publish(self.ultrasonic1_msg)
-        # if dist2 != self.ultrasonic2_msg.data:
-        #     self.ultrasonic2_msg.data = dist2
-        #     self.ultrasonic2_pub.publish(self.ultrasonic2_msg)
-
-    def ultrasonic_callback(self, timer):
-        self.publish_ultrasonic()
     
     def motor_left_callback(self, msg):
         self.romi_i2c.set_left_motor(msg.data)
