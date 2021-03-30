@@ -1,0 +1,41 @@
+install git and tmux
+
+steps:
+clone FRC-Romi-ROS
+put romi in write mode
+add fix_tmp and svc_down to rc.local
+run fix_tmp script
+
+clone romi ros dependencies:
+git clone https://github.com/ros-geographic-info/geographic_info
+git clone https://github.com/ros/geometry2.git
+git clone https://github.com/ros-planning/navigation
+git clone https://github.com/ros-planning/navigation_msgs.git
+git clone https://github.com/cra-ros-pkg/robot_localization.git
+git clone https://github.com/ros-teleop/teleop_twist_keyboard.git
+git clone https://github.com/ros-geographic-info/unique_identifier.git
+
+cd geometry2
+git checkout melodic-devel
+
+cd navigation
+git checkout melodic-devel
+
+cd navigation_msgs
+git checkout ros1
+
+go through ros setup tutorial until the isolated build setup
+
+mod geometry2:
+sudo rm -r tf2 tf2_geometry_msgs tf2_kdl tf2_msgs tf2_py tf2_ros
+mv test_tf2 ~/ros_catkin_ws/src
+mv tf2_bullet ~/ros_catkin_ws/src
+mv tf2_eigen ~/ros_catkin_ws/src
+mv tf2_sensor_msgs ~/ros_catkin_ws/src
+mv tf2_tools ~/ros_catkin_ws/src
+
+https://nebl.io/neblio-university/enabling-increasing-raspberry-pi-swap/
+
+tmux new -s ros
+sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/melodic -j2
+tmux a -t rosS
