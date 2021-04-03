@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <node name="tj2_romi_networktables" pkg="tj2_romi_networktables" type="tj2_romi_networktables_node.py" output="screen" required="true">
+        <param name="host_ip" value="192.168.0.23"/>
     </node>
 </launch>

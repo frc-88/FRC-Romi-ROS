@@ -4,21 +4,12 @@ import rospy
 from std_msgs.msg import Float64
 from sensor_msgs.msg import Imu
 
-from romi_i2c import RomiI2C
-from imu_i2c import ImuI2C
-
-# To see messages from networktables, you must setup logging
-import logging
-
 from networktables import NetworkTables
-
-
-logging.basicConfig(level=logging.DEBUG)
 
 
 class TJ2RomiI2C(object):
     def __init__(self):
-        self.node_name = "tj2_romi_i2c"
+        self.node_name = "tj2_romi_networktables"
         rospy.init_node(
             self.node_name
             # disable_signals=True
@@ -67,6 +58,8 @@ class TJ2RomiI2C(object):
         self.ultrasonic_timer = rospy.Timer(rospy.Duration(1.0 / 10.0), self.ultrasonic_callback)
 
         self.clock_rate = rospy.Rate(30.0)
+
+        rospy.loginfo("%s init done" % self.node_name)
 
     def run(self):
         while not rospy.is_shutdown():
