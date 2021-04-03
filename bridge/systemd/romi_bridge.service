@@ -1,0 +1,16 @@
+[Unit]
+After=NetworkManager.service time-sync.target
+Description=romi_bridge
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+ExecStart=/usr/bin/romi_bridge.sh
+Restart=no
+KillSignal=SIGINT
+TimeoutStopSec=3
+FinalKillSignal=SIGKILL
+
+[Install]
+WantedBy=multi-user.target
