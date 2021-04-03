@@ -46,7 +46,9 @@ class Encoder:
         return ticks - self.start_ticks
 
 
-class RomiI2C:
+HCSR04_OUT_OF_RANGE = 38000.0  # value ultrasonic sensor returns when out of range
+
+class RomiI2C(object):
     def __init__(self, bus, sharedmem_path, wheel_diameter):
         self.bus = bus
         self.address = 0x14
@@ -117,6 +119,19 @@ class RomiI2C:
         self.right_encoder.update(self._read_right_encoder())
         return self.right_encoder.ticks * self.ticks_to_m
     
+    def get_ultrasonic_dist_1(self):
+        return self._read_ultrasonic("ultrasonicDist1")
+    
+    def get_ultrasonic_dist_2(self):
+        return self._read_ultrasonic("ultrasonicDist2")
+    
+    def _read_ultrasonic(self, key):
+        dist = self.read(key)
+        if dist == HCSR04_OUT_OF_RANGE:
+            return float("nan")
+        else:
+            return dist
+    
     def _read_left_encoder(self):
         return self.read("leftEncoder")
     
@@ -129,7 +144,11 @@ class RomiI2C:
     def write(self, register_name, data):
         offset = self.sharedmem_map[register_name]["offset"]
         mem_format = self.sharedmem_map[register_name]["format"]
-        data_array = [struct.unpack('b', x)[0] for x in struct.pack(mem_format, data)]
+        data_bytes = struct.pack(mem_format, data)
+        data_array = []
+        for index in range(len(data_bytes)):
+            data_byte = data_bytes[index: index + 1]
+            data_array.append(struct.unpack('b', data_byte)[0])
         self.write_queue.put((offset, data_array))
 
     def read(self, register_name):

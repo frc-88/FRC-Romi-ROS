@@ -2,8 +2,8 @@ import time
 import warnings
 from smbus import SMBus
 
-from romi_i2c import RomiI2C
-from imu_i2c import ImuI2C
+from romi_bus import RomiI2C
+from romi_bus import ImuI2C
 
 from romi_server import RomiServer
 
