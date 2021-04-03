@@ -20,9 +20,9 @@ from particle_filter import ParticleFilter
 from map_raytracer import MapRaytracer
 
 
-class ObjectFilterNode:
+class TJ2RomiPfNode:
     def __init__(self):
-        self.node_name = "db_object_filter"
+        self.node_name = "tj2_romi_pf"
         rospy.init_node(
             self.node_name,
             # disable_signals=True
@@ -129,7 +129,7 @@ class ObjectFilterNode:
 
 
 if __name__ == "__main__":
-    node = ObjectFilterNode()
+    node = TJ2RomiPfNode()
     try:
         node.run()
     except rospy.ROSInterruptException:

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node name="tj2_romi_pf" pkg="tj2_romi_pf" type="tj2_romi_pf_node.py" output="screen">
+        <rosparam file="$(find tj2_romi_pf)/config/filter.yaml" command="load"/>
+    </node>
+</launch>
