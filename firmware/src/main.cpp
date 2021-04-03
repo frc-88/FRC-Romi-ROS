@@ -3,7 +3,6 @@
 #include <PololuRPiSlave.h>
 #include <Romi32U4.h>
 #include <ServoT3.h>
-#include <HCSR04.h>
 
 #include "shmem_buffer.h"
 #include "low_voltage_helper.h"
@@ -35,23 +34,6 @@ Romi32U4ButtonC buttonC;
 Romi32U4Buzzer buzzer;
 
 PololuRPiSlave<Data, 20> rPiLink;
-
-/*
-    HCSR04(trigger, echo, temperature, distance)
-
-    trigger     - trigger pin
-    echo        - echo pin
-    temperature - ambient temperature, in C
-    distance    - maximun measuring distance, in cm
-*/
-const int ULTRASONIC1_TRIGGER = 4;
-const int ULTRASONIC1_ECHO = 11;
-const int ULTRASONIC2_TRIGGER = 20;
-const int ULTRASONIC2_ECHO = 21;
-uint32_t lastUltrasonicPing = 0;
-int pingState = 0;
-HCSR04 ultrasonic1(ULTRASONIC1_TRIGGER, ULTRASONIC1_ECHO, 20, 300);
-HCSR04 ultrasonic2(ULTRASONIC2_TRIGGER, ULTRASONIC2_ECHO, 20, 300);
 
 uint8_t builtinDio0Config = kModeDigitalIn;
 uint8_t builtinDio1Config = kModeDigitalOut;
@@ -276,31 +258,10 @@ void normalModeLoop()
         configureBuiltins(builtinConfig);
     }
 
-    /*  
-        !!!
-        disabling IO configuration over I2C
-        polling ultrasonic sensors instead
-        !!!
-    */
-
-    // uint16_t ioConfig = rPiLink.buffer.ioConfig;
-    // if ((ioConfig >> 15) & 0x1)
-    // {
-    //     configureIO(ioConfig);
-    // }
-
-    // wait 50msec, or more, until echo from previous measurement disappears
-    if (currentTime - lastUltrasonicPing > 50)
+    uint16_t ioConfig = rPiLink.buffer.ioConfig;
+    if ((ioConfig >> 15) & 0x1)
     {
-        if (pingState == 0) {
-            rPiLink.buffer.ultrasonicDist1 = ultrasonic1.getDistance();
-            pingState++;
-        }
-        else if (pingState == 1) {
-            rPiLink.buffer.ultrasonicDist2 = ultrasonic2.getDistance();
-            pingState = 0;
-        }
-        lastUltrasonicPing = currentTime;
+        configureIO(ioConfig);
     }
 
     // Update the built-ins
@@ -415,9 +376,6 @@ void setup()
     {
         normalModeInit();
     }
-
-    ultrasonic1.begin();
-    ultrasonic2.begin();
 }
 
 void loop()
