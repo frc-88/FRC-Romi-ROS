@@ -1,7 +1,8 @@
 import math
 import json
-import rospy
+import time
 import struct
+import warnings
 from Queue import Queue
 from threading import Lock
 
@@ -45,6 +46,8 @@ class Encoder:
         return ticks - self.start_ticks
 
 
+HCSR04_OUT_OF_RANGE = 38000.0  # value ultrasonic sensor returns when out of range
+
 class RomiI2C(object):
     def __init__(self, bus, sharedmem_path, wheel_diameter):
         self.bus = bus
@@ -73,7 +76,7 @@ class RomiI2C(object):
             if pin_mode is None:
                 pin_mode = self.io_modes[index]
             elif not PinMode.is_mode(pin_mode):
-                rospy.logwarn("Pin %s config is not a valid mode: %s" % (pin_names[index], pin_mode))
+                warnings.warn("Pin %s config is not a valid mode: %s" % (pin_names[index], pin_mode))
                 pin_mode = self.io_modes[index]
             else:
                 self.io_modes[index] = pin_mode
@@ -116,6 +119,19 @@ class RomiI2C(object):
         self.right_encoder.update(self._read_right_encoder())
         return self.right_encoder.ticks * self.ticks_to_m
     
+    def get_ultrasonic_dist_1(self):
+        return self._read_ultrasonic("ultrasonicDist1")
+    
+    def get_ultrasonic_dist_2(self):
+        return self._read_ultrasonic("ultrasonicDist2")
+    
+    def _read_ultrasonic(self, key):
+        dist = self.read(key)
+        if dist == HCSR04_OUT_OF_RANGE:
+            return float("nan")
+        else:
+            return dist
+    
     def _read_left_encoder(self):
         return self.read("leftEncoder")
     
@@ -138,7 +154,7 @@ class RomiI2C(object):
 
         with self.i2c_lock:
             self.bus.write_byte(self.address, offset)
-            rospy.sleep(0.001)
+            time.sleep(0.001)
             byte_list = [self.bus.read_byte(self.address) for _ in range(size)]
         data = struct.unpack(mem_format, bytearray(byte_list))
         if len(data) == 1:
@@ -154,7 +170,7 @@ class RomiI2C(object):
 
     def _write(self, offset, data_array):
         self.bus.write_i2c_block_data(self.address, offset, data_array)
-        rospy.sleep(0.001)
+        time.sleep(0.001)
 
     def load_config(self, sharedmem_path):
         with open(sharedmem_path) as file:

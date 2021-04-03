@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <arg name="use_ekf" default="true"/>
-    <!-- <include file="$(find tj2_romi_networktables)/launch/tj2_romi_networktables.launch"/> -->
-    <include file="$(find tj2_romi_i2c)/launch/tj2_romi_i2c.launch"/>
+    <include file="$(find tj2_romi_networktables)/launch/tj2_romi_networktables.launch"/>
+    <!-- <include file="$(find tj2_romi_i2c)/launch/tj2_romi_i2c.launch"/> -->
     <include file="$(find tj2_romi_odom)/launch/tj2_romi_odom.launch">
         <arg name="publish_odom_tf" value="$(eval not use_ekf)"/>
     </include>

@@ -1,5 +1,5 @@
 import math
-import rospy
+import time
 import struct
 
 
@@ -219,5 +219,5 @@ class ImuI2C(object):
 
     def _read_byte(self, register):
         self.bus.write_byte(self.address, register)
-        rospy.sleep(0.001)
+        time.sleep(0.001)
         return self.bus.read_byte(self.address)
